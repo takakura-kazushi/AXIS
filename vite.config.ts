@@ -8,4 +8,9 @@ export default defineConfig({
     vue(),
     vuetify({ autoImport: true }),
   ],
+  server: {
+    host: true,
+    port: 5173,
+    strictPort: true,
+  },
 })
