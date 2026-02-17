@@ -221,8 +221,10 @@ const timeSlots = [
         <!-- 時間軸ラベル -->
         <div class="time-axis">
           <div class="day-label"></div>
-          <div v-for="slot in timeSlots" :key="slot" class="time-axis-label">
-            {{ slot }}
+          <div class="time-axis-scroll">
+            <div v-for="slot in timeSlots" :key="slot" class="time-axis-label">
+              {{ slot }}
+            </div>
           </div>
         </div>
 
@@ -270,6 +272,9 @@ const timeSlots = [
         </div>
       </div>
     </div>
+
+    <!-- 進捗バー -->
+    <div class="progress-bar"></div>
   </div>
 </template>
 
@@ -278,20 +283,42 @@ const timeSlots = [
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+/* スクロールバーを非表示 */
+.timeline-scroll,
+.day-timeline,
+.week-timelines,
+.time-axis-scroll {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.timeline-scroll::-webkit-scrollbar,
+.day-timeline::-webkit-scrollbar,
+.week-timelines::-webkit-scrollbar,
+.time-axis-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 /* スマホ版 */
 .mobile-view {
-  height: 100vh;
+  height: calc(100vh - 64px - 80px); /* ヘッダー分とマージン分を引く */
   display: flex;
   flex-direction: column;
+  margin: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .date-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 16px 20px;
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   flex-shrink: 0;
@@ -314,6 +341,8 @@ const timeSlots = [
 .timeline {
   position: relative;
   background-color: white;
+  padding: 0 16px;
+  padding-bottom: 20px;
 }
 
 .time-slot {
@@ -324,7 +353,7 @@ const timeSlots = [
 
 .time-label {
   position: absolute;
-  left: 0;
+  left: 16px;
   top: 0;
   width: 60px;
   padding: 8px;
@@ -334,16 +363,16 @@ const timeSlots = [
 
 .time-line {
   position: absolute;
-  left: 70px;
-  right: 0;
+  left: 86px;
+  right: 16px;
   top: 0;
   bottom: 0;
   border-left: 2px solid #e0e0e0;
 }
 
 .todo-card {
-  margin-left: 80px;
-  margin-right: 12px;
+  margin-left: 96px;
+  margin-right: 16px;
   margin-top: 8px;
   margin-bottom: 8px;
   padding: 12px;
@@ -371,10 +400,15 @@ const timeSlots = [
 
 /* PC版 */
 .desktop-view {
-  height: 100vh;
+  height: calc(100vh - 64px - 80px); /* ヘッダー分とマージン分を引く */
   display: flex;
   flex-direction: column;
   background-color: #fafafa;
+  margin: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .week-header {
@@ -386,12 +420,15 @@ const timeSlots = [
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
   flex-shrink: 0;
+  z-index: 10;
 }
 
 .week-container {
   flex: 1;
   display: flex;
   overflow: hidden;
+  padding: 20px;
+  padding-bottom: 20px;
 }
 
 .time-axis {
@@ -399,6 +436,19 @@ const timeSlots = [
   flex-shrink: 0;
   background-color: white;
   border-right: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+}
+
+.time-axis .day-label {
+  height: 60px;
+  flex-shrink: 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.time-axis-scroll {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .time-axis-label {
@@ -410,6 +460,7 @@ const timeSlots = [
   font-size: 11px;
   color: #666;
   border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
 }
 
 .week-timelines {
@@ -423,6 +474,8 @@ const timeSlots = [
   min-width: 150px;
   border-right: 1px solid #e0e0e0;
   background-color: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .day-label {
@@ -433,6 +486,7 @@ const timeSlots = [
   justify-content: center;
   border-bottom: 1px solid #e0e0e0;
   background-color: #fafafa;
+  flex-shrink: 0;
 }
 
 .day-label.is-today {
@@ -440,14 +494,14 @@ const timeSlots = [
 }
 
 .day-timeline {
+  flex: 1;
   overflow-y: auto;
-  height: calc(100vh - 136px);
 }
 
 .time-slot-desktop {
   min-height: 60px;
   border-bottom: 1px solid #f0f0f0;
-  padding: 4px 8px;
+  padding: 4px 12px;
   position: relative;
 }
 
@@ -473,5 +527,25 @@ const timeSlots = [
 
 .todo-card-desktop.todo-done .font-weight-medium {
   text-decoration: line-through;
+}
+
+/* 進捗バー */
+.progress-bar {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  width: 5px;
+  height: 80px;
+  background: linear-gradient(
+    to top,
+    rgba(251, 207, 232, 0.6),
+    rgba(125, 211, 252, 0.6)
+  );
+  border-radius: 2.5px;
+  box-shadow:
+    0 0 12px rgba(125, 211, 252, 0.4),
+    0 0 6px rgba(251, 207, 232, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
 }
 </style>
