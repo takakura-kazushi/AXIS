@@ -11,7 +11,7 @@ const emit = defineEmits(['toggleDrawer'])
     <v-app-bar-title class="font-weight-bold">AXIS</v-app-bar-title>
 
     <template v-slot:append>
-      <v-btn icon="mdi-bell-outline"></v-btn>
+      <v-btn icon="mdi-bell-outline" class="mr-4"></v-btn>
     </template>
   </v-app-bar>
 </template>

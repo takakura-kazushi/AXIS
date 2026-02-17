@@ -1,45 +1,33 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
-// 親(App.vue)とのデータ同期用設定
 const props = defineProps<{
-  modelValue: boolean
-}>()
+  modelValue: boolean;
+}>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void
-}>()
+  (e: "update:modelValue", value: boolean): void;
+}>();
 
-// v-modelの実体
-// サイドバー自体が閉じる動作をした時(スクリムクリック等)、
-// setが呼ばれて親に「閉じたよ(false)」と伝えます。
 const drawer = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
+  set: (val) => emit("update:modelValue", val),
+});
 
 const menuItems = [
-  { title: 'ホーム', icon: 'mdi-home-outline', to: '/' },
-  { title: '予定 (Calendar)', icon: 'mdi-calendar-clock', to: '/calendar' },
-  { title: '記録 (Log)', icon: 'mdi-chart-timeline-variant', to: '/log' },
-  { title: '設定 (Settings)', icon: 'mdi-cog-outline', to: '/settings' },
-]
+  { title: "ホーム", icon: "mdi-home-outline", to: "/" },
+  { title: "予定 (Calendar)", icon: "mdi-calendar-clock", to: "/calendar" },
+  { title: "記録 (Log)", icon: "mdi-chart-timeline-variant", to: "/log" },
+  { title: "設定 (Settings)", icon: "mdi-cog-outline", to: "/settings" },
+];
 </script>
 
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    temporary
-  >
-    <v-sheet class="pa-4">
-      <div class="d-flex align-center">
-        <v-avatar color="primary" class="mr-3" size="40">
-          <v-icon icon="mdi-account" color="white"></v-icon>
-        </v-avatar>
-        <div class="font-weight-bold">User</div>
-      </div>
-    </v-sheet>
-    
+  <v-navigation-drawer v-model="drawer" temporary>
+    <div class="py-6" style="text-align: center">
+      <div class="font-weight-bold text-h6">User</div>
+    </div>
+
     <v-divider></v-divider>
 
     <v-list nav>
@@ -48,7 +36,7 @@ const menuItems = [
         :key="item.title"
         :prepend-icon="item.icon"
         :title="item.title"
-        :to="item.to" 
+        :to="item.to"
         active-color="primary"
         rounded="xl"
       ></v-list-item>
