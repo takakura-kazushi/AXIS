@@ -140,6 +140,17 @@ const timeSlots = [
   "22:00",
   "23:00",
 ];
+
+// 時間軸とタイムラインのスクロール同期
+const timeAxisScrollRef = ref<HTMLElement | null>(null);
+const weekTimelinesRef = ref<HTMLElement | null>(null);
+
+const handleTimelineScroll = () => {
+  if (timeAxisScrollRef.value && weekTimelinesRef.value) {
+    const scrollTop = weekTimelinesRef.value.scrollTop;
+    timeAxisScrollRef.value.style.transform = `translateY(-${scrollTop}px)`;
+  }
+};
 </script>
 
 <template>
@@ -222,14 +233,26 @@ const timeSlots = [
         <div class="time-axis">
           <div class="day-label"></div>
           <div class="time-axis-scroll">
-            <div v-for="slot in timeSlots" :key="slot" class="time-axis-label">
-              {{ slot }}
+            <div ref="timeAxisScrollRef" class="time-axis-content">
+              <div
+                v-for="slot in timeSlots"
+                :key="slot"
+                class="time-axis-label"
+              >
+                {{ slot }}
+              </div>
+              <!-- スクロール用のスペーサー -->
+              <div class="timeline-spacer"></div>
             </div>
           </div>
         </div>
 
         <!-- 各曜日のタイムライン -->
-        <div class="week-timelines">
+        <div
+          ref="weekTimelinesRef"
+          class="week-timelines"
+          @scroll="handleTimelineScroll"
+        >
           <div
             v-for="(dayData, index) in weekDays"
             :key="index"
@@ -267,6 +290,8 @@ const timeSlots = [
                   <div class="text-caption text-grey">{{ todo.time }}</div>
                 </div>
               </div>
+              <!-- スクロール用のスペーサー -->
+              <div class="timeline-spacer"></div>
             </div>
           </div>
         </div>
@@ -444,29 +469,44 @@ const timeSlots = [
   height: 60px;
   flex-shrink: 0;
   border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background-color: white;
 }
 
 .time-axis-scroll {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
+  pointer-events: none;
+  position: relative;
+  will-change: transform;
+}
+
+.time-axis-content {
+  will-change: transform;
 }
 
 .time-axis-label {
-  height: 60px;
+  height: 100px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 4px;
-  font-size: 11px;
+  padding-top: 8px;
+  font-size: 12px;
   color: #666;
   border-bottom: 1px solid #f0f0f0;
   flex-shrink: 0;
+  background-color: white;
+  box-sizing: border-box;
 }
 
 .week-timelines {
   flex: 1;
   display: flex;
+  overflow-y: auto;
   overflow-x: auto;
+  align-items: flex-start;
 }
 
 .day-column {
@@ -487,6 +527,9 @@ const timeSlots = [
   border-bottom: 1px solid #e0e0e0;
   background-color: #fafafa;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .day-label.is-today {
@@ -494,15 +537,18 @@ const timeSlots = [
 }
 
 .day-timeline {
-  flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .time-slot-desktop {
-  min-height: 60px;
+  height: 100px;
   border-bottom: 1px solid #f0f0f0;
-  padding: 4px 12px;
+  padding: 8px 12px;
   position: relative;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .todo-card-desktop {
@@ -527,6 +573,12 @@ const timeSlots = [
 
 .todo-card-desktop.todo-done .font-weight-medium {
   text-decoration: line-through;
+}
+
+/* スクロール用のスペーサー */
+.timeline-spacer {
+  height: 200px;
+  flex-shrink: 0;
 }
 
 /* 進捗バー */
